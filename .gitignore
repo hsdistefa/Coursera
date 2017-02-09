@@ -3,9 +3,16 @@ datasci_course_materials/assignment1/output.json
 datasci_course_materials/assignment1/three_minutes_tweets.json
 datasci_course_materials/assignment1/twitterstream.py
 
-datasci_course_materials/assignment2/
+datasci_course_materials/assignment2/a.csv
+datasci_course_materials/assignment2/b.csv
+datasci_course_materials/assignment2/Frequency.csv
+datasci_course_materials/assignment2/matrix.db
+datasci_course_materials/assignment2/reuters.db
+
 datasci_course_materials/assignment3/
 datasci_course_materials/assignment4/
 datasci_course_materials/assignment5/
 datasci_course_materials/assignment6/
 datasci_course_materials/capstone/
+
+Stats-Inferential-with-R-Duke/

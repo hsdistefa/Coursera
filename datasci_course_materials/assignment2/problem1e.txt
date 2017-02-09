@@ -1,0 +1,7 @@
+/* This returns all the docid's (including duplicates) that contain more
+   than 300 unique terms
+*/
+SELECT docid
+FROM frequency
+GROUP BY term
+HAVING COUNT(term) > 300;

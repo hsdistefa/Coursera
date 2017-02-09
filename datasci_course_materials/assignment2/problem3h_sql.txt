@@ -1,0 +1,8 @@
+SELECT SUM(prod)
+FROM (
+    SELECT SUM(a.count*b.count) as prod
+    FROM frequency as a, frequency as b
+    WHERE a.docid='10080_txt_crude'
+        AND b.docid='17035_txt_earn'
+    GROUP BY a.term, b.term
+) x;

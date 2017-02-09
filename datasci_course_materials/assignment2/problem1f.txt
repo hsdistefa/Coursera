@@ -1,0 +1,11 @@
+/* Returns the number of unique docids containing both the term
+   'transaction' and the term 'world'
+*/
+SELECT COUNT(*)
+FROM (
+    SELECT *
+    FROM frequency
+    WHERE term IN ('transactions', 'world')
+    GROUP BY docid
+    HAVING COUNT(DISTINCT(term)) > 1
+) x;
