@@ -9,10 +9,13 @@ datasci_course_materials/assignment2/Frequency.csv
 datasci_course_materials/assignment2/matrix.db
 datasci_course_materials/assignment2/reuters.db
 
-datasci_course_materials/assignment3/
+.ropeproject/
 datasci_course_materials/assignment4/
 datasci_course_materials/assignment5/
 datasci_course_materials/assignment6/
 datasci_course_materials/capstone/
 
-Stats-Inferential-with-R-Duke/
+.Rhistory
+.RData
+Stats-Inferential-with-R-Duke/Wk1Lab/_43f5c1b4ef8358a74933caeb1853e914_sampling_distributions_Coursera.rmd
+
