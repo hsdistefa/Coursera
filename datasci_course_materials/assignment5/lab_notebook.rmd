@@ -1,0 +1,134 @@
+#Assignment 5 R Notebook
+Import necessary libraries
+```{r}
+library("caret")
+library("rpart")
+library("tree")
+library("randomForest")
+library("e1071")
+library("ggplot2")
+```
+
+###Step 1: Read and summarize the data
+Using R, read the file seaflow_21min.csv and get the overall counts for each category of particle. The counts for each type of particle are in the pop column.
+```{r}
+sf <- read.csv("seaflow_21min.csv")
+summary(sf)
+```
+###Step 2: Split the data into test and training sets
+Divide the data into two equal subsets, one for training and one for testing.
+
+```{r}
+set.seed(1001)
+trainIndex <- createDataPartition(sf$pop, times=1, list=FALSE)
+sfTrain <- sf[trainIndex,]
+sfTest  <- sf[-trainIndex,]
+mean(sfTrain$time)
+```
+
+###Step 3: Plot the data
+Plot pe against chl_small and color by pop
+
+```{r}
+ggplot(sf, aes(x=pe, y=chl_small, color=pop)) +
+  geom_point()
+```
+
+###Step 4: Train a decision tree
+Train a tree as a function of the sensor measurements: fsc_small + fsc_perp + fsc_big + pe + chl_big + chl_small
+Print the resulting model
+```{r}
+fol <- formula(pop ~ fsc_small + fsc_perp + fsc_big + pe + chl_big + chl_small)
+dtModel <- rpart(fol, method="class", data=sfTrain)
+print(dtModel)
+```
+
+###Step 5: Evaluate the decision tree on the test data
+Use the predict function to generate predictions on your test data. Then, compare these predictions with the class labels in the test data itself to get the model's accuracy
+```{r}
+dtPredictions <- predict(dtModel, newdata=sfTest, type="class")
+sum(dtPredictions == sfTest$pop) / nrow(sfTest)
+```
+
+
+###Step 6: Build and evaluate a random forest
+Build and evaluate a random forest model on the test data
+Call importance on the model to rank the Gini impurity of each of the features
+```{r}
+fol <- formula(pop ~ fsc_small + fsc_perp + fsc_big + pe + chl_big + chl_small)
+rfModel <- randomForest(fol, method="class", data=sfTrain)
+print(rfModel)
+rfPredictions <- predict(rfModel, newdata=sfTest, type="class")
+print(sum(rfPredictions == sfTest$pop) / nrow(sfTest))
+importance(rfModel)
+```
+
+
+###Step 7: Train a support vector machine model and compare results
+Use the e1071 library to build and evaluate a support vector machine model
+```{r}
+fol <- formula(pop ~ fsc_small + fsc_perp + fsc_big + pe + chl_big + chl_small)
+svmModel <- svm(fol, data=sfTrain)
+svmPredictions <- predict(svmModel, newdata=sfTest, type="class")
+print(sum(svmPredictions == sfTest$pop) / nrow(sfTest))
+```
+
+
+###Step 8: Construct confusion matrices
+Use the table function to generate a confusion matrix for each of the three methods.
+```{r}
+table(pred=dtPredictions, true=sfTest$pop)
+table(pred=rfPredictions, true=sfTest$pop)
+table(pred=svmPredictions, true=sfTest$pop)
+```
+
+
+###Step 9: Sanity check the data
+As a data scientist, you should never trust the data, especially if you did not collect it yourself. There is no such thing as clean data. You should always be trying to prove your results wrong by finding problems with the data. Richard Feynman calls it "bending over backwards to show how you're maybe wrong." This is even more critical in data science, because almost by definition you are using someone else's data that was collected for some other purpose rather than the experiment you want to do. So of course it's going to have problems.
+
+The measurements in this dataset are all supposed to be continuous (fsc_small, fsc_perp, fsc_big, pe, chl_small, chl_big), but one is not. By plotting time against fsc_big we can see that fsc_big only takes on discrete values.
+```{r}
+ggplot(sf, aes(x=time, y=fsc_big)) + geom_point()
+```
+
+
+There is more subtle issue with data as well. Plot time vs. chl_big, and you will notice a band of the data looks out of place. This band corresponds to data from a particular file for which the sensor may have been miscalibrated. 
+```{r}
+ggplot(sf, aes(x=time, y=chl_big, color=pop)) +
+  geom_point()
+```
+Remove this data from the dataset by filtering out all data associated with file_id 208
+```{r}
+sf <- sf[sf$file_id != 208, ]
+ggplot(sf, aes(x=time, y=chl_big, color=pop)) +
+  geom_point()
+```
+
+Then repeat the experiment for all three methods and evaluate
+```{r}
+trainIndex <- createDataPartition(sf$pop, times=1, list=FALSE)
+sfTrain <- sf[trainIndex, ]
+sfTest  <- sf[-trainIndex,]
+fol <- formula(pop ~ fsc_small + fsc_perp + fsc_big + pe + chl_big + chl_small)
+```
+**Decision Tree**
+```{r}
+dtModel <- rpart(fol, method="class", data=sfTrain)
+dtPredictions <- predict(dtModel, newdata=sfTest, type="class")
+print(sum(dtPredictions == sfTest$pop) / nrow(sfTest))
+table(pred=dtPredictions, true=sfTest$pop)
+```
+**Random Forest**
+```{r}
+rfModel <- randomForest(fol, method="class", data=sfTrain)
+rfPredictions <- predict(rfModel, newdata=sfTest, type="class")
+print(sum(rfPredictions == sfTest$pop) / nrow(sfTest))
+table(pred=rfPredictions, true=sfTest$pop)
+```
+**Support Vector Machine**
+```{r}
+svmModel <- svm(fol, data=sfTrain)
+svmPredictions <- predict(svmModel, newdata=sfTest, type="class")
+print(sum(svmPredictions == sfTest$pop) / nrow(sfTest))
+table(pred=svmPredictions, true=sfTest$pop)
+```
